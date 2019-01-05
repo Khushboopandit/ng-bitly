@@ -1,6 +1,6 @@
 const express = require('express')
 const app = express()
-const port = 5000
+const port = 7000
 const shortid = require('shortid')
 
 
@@ -29,9 +29,9 @@ const loggerMiddleware = (req, res, next) => {
 app.use(loggerMiddleware)
 app.use(express.json())
 
-app.get('/', (req, res) => {
-    return res.send('Hello World')
-})
+// app.get('/', (req, res) => {
+//     return res.send('Hello World')
+// })
 
 app.post('/shorten', (req, res) => {
     console.log(req.body)
@@ -51,7 +51,7 @@ app.post('/shorten', (req, res) => {
         })
 })
 
-app.get('/shorten/:hash', (req, res) => {
+app.get('/:hash', (req, res) => {
     console.log(req.params);
     URL.findOne({hash: req.params.hash}).exec()
         .then(existingUrl => {
@@ -60,10 +60,10 @@ app.get('/shorten/:hash', (req, res) => {
                 // update the URL HITS here
                 // how to update any row in a table in mongodb  
                 return URL.update({hash: req.params.hash},{$set:{hits: existingUrl.hits+1}}).exec()
-                            .then(() => {
-                                console.log(existingUrl)
-                                return res.redirect(existingUrl.url);
-                            })
+                        .then(() => {
+                            console.log(existingUrl)
+                            return res.redirect(existingUrl.url);
+                        })
             } else {
                 return res.status(404)
             }
