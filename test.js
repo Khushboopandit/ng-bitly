@@ -30,6 +30,17 @@ describe("API Tests", function() {
     });
   });
 
+
+  describe("/hits", function() {
+    it("it should return the hits", (done) => {
+      axios.get("http://localhost:7000/hits?hash="+hash)
+        .then(response => {
+          expect(response.data.hits).to.equal(hits)
+          done()
+        })
+    })
+  })
+
   describe("/:hash", function() {
   
     it("should redirect the user for an existing hash", (done) => {
@@ -49,6 +60,16 @@ describe("API Tests", function() {
           done()
         })
     })
-
+    
+    it("hits for the url if its increamenting",(done)=>{
+      const randomHash = "cjdhjckh73"
+      axios.get("http://localhost:7000/"+randomHash)
+        .catch(err => {
+          expect(err.response.status).to.equal(404)
+          done()
+        })
+    })
   })
+
+  
 });

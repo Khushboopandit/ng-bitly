@@ -50,6 +50,14 @@ app.post('/shorten', (req, res) => {
             return res.status(201).send(doc)
         })
 })
+app.get('/hits', (req, res) => {
+    console.log('in hits handler')
+    URL.findOne({hash: req.query.hash}).exec()
+        .then(existingUrl => {
+            return res.send({hits: existingUrl.hits})
+        })
+})
+
 
 app.get('/:hash', (req, res) => {
     console.log(req.params);
@@ -62,12 +70,18 @@ app.get('/:hash', (req, res) => {
                 return URL.update({hash: req.params.hash},{$set:{hits: existingUrl.hits+1}}).exec()
                         .then(() => {
                             console.log(existingUrl)
-                            return res.redirect(existingUrl.url);
+                            if (existingUrl.hits!=6){
+                                return res.redirect(existingUrl.url)
+                            }
                         })
             } else {
-                return res.status(404)
+                return res.send(404)
             }
         })
 })
 
+
+
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+
+
