@@ -66,16 +66,26 @@ app.get('/:hash', (req, res) => {
         .then(existingUrl => {
             if (existingUrl) {
                 console.log("Redirecting...")
+                let setValues = {
+                    $set:{
+                        hits: existingUrl.hits<6?  existingUrl.hits+1 : 0,
+                    }
+                }
+
+                let whereClause = {
+                    hash: req.params.hash
+                }
                 // update the URL HITS here
                 // how to update any row in a table in mongodb  
-                return URL.update({hash: req.params.hash},{$set:{hits: existingUrl.hits+1}}).exec()
+                return URL.update( whereClause, setValues ).exec()
                         .then(() => {
                             console.log(existingUrl)
                             if (existingUrl.hits<6){
                                 return res.redirect(existingUrl.url)
                             }
                             else{
-                                return res.send(404)
+                                res.status(404).send(shortid.generate())                                
+                                
                             }
                         })
             } else {
