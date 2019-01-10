@@ -50,6 +50,7 @@ app.post('/shorten', (req, res) => {
             return res.status(201).send(doc)
         })
 })
+
 app.get('/hits', (req, res) => {
     console.log('in hits handler')
     URL.findOne({hash: req.query.hash}).exec()
@@ -70,8 +71,11 @@ app.get('/:hash', (req, res) => {
                 return URL.update({hash: req.params.hash},{$set:{hits: existingUrl.hits+1}}).exec()
                         .then(() => {
                             console.log(existingUrl)
-                            if (existingUrl.hits!=6){
+                            if (existingUrl.hits<6){
                                 return res.redirect(existingUrl.url)
+                            }
+                            else{
+                                return res.send(404)
                             }
                         })
             } else {
