@@ -73,7 +73,7 @@ app.get('/:hash', (req, res) => {
                 }
 
                 let whereClause = {
-                    hash: existingUrl.hits == 0? shortid.generate(): req.params.hash 
+                    hash: req.params.hash 
                 }
                 // update the URL HITS here
                 // how to update any row in a table in mongodb  
@@ -84,7 +84,8 @@ app.get('/:hash', (req, res) => {
                                 return res.redirect(existingUrl.url)
                             }
                             else{
-                                res.status(404).send(existingUrl.hash)                                
+                                res.status(404).send( hash = shortid.generate()) 
+                                URL.update( whereClause, {$set: {hash:hash}}).exec()                             
                                 
                             }
                         })
