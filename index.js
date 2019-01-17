@@ -68,12 +68,12 @@ app.get('/:hash', (req, res) => {
                 console.log("Redirecting...")
                 let setValues = {
                     $set:{
-                        hits: existingUrl.hits<6?  existingUrl.hits+1 : 0,
+                        hits: existingUrl.hits < 6?  existingUrl.hits+1 : 0,
                     }
                 }
 
                 let whereClause = {
-                    hash: req.params.hash
+                    hash: existingUrl.hits == 0? shortid.generate(): req.params.hash 
                 }
                 // update the URL HITS here
                 // how to update any row in a table in mongodb  
@@ -84,7 +84,7 @@ app.get('/:hash', (req, res) => {
                                 return res.redirect(existingUrl.url)
                             }
                             else{
-                                res.status(404).send(shortid.generate())                                
+                                res.status(404).send(existingUrl.hash)                                
                                 
                             }
                         })
