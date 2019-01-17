@@ -16,7 +16,7 @@ dbConnection.on('open', () => {
 const URL = mongoose.model("url", {
     hash: String,
     url: String,
-    maxHits: {type: Number, default: 2},
+    maxHits: {type: Number},
     hits: { type: Number, default: 0 }
 });
 
@@ -82,11 +82,12 @@ app.get('/:hash', (req, res) => {
                 return URL.update( whereClause, setValues ).exec()
                         .then(() => {
                             console.log(existingUrl)
+                            console.log(existingUrl.maxHits)
                             if (existingUrl.hits <= existingUrl.maxHits){
                                 return res.redirect(existingUrl.url)
                             }
                             else{
-                                res.status(404)
+                                res.status(404).send("not found")
                                 
                             }
                         })
