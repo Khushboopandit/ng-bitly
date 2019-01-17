@@ -16,6 +16,7 @@ dbConnection.on('open', () => {
 const URL = mongoose.model("url", {
     hash: String,
     url: String,
+    maxHits: {type: Number, default: 2},
     hits: { type: Number, default: 0 }
 });
 
@@ -43,7 +44,8 @@ app.post('/shorten', (req, res) => {
             // create if no shorten url exist
             } else {
                     const hash = shortid.generate();
-                    return URL.create({ hash: hash, url: req.body.url });
+
+                    return URL.create({ hash: hash, url: req.body.url , maxHits: req.body.maxHits});
             }
         })
         .then(doc => {
@@ -68,7 +70,7 @@ app.get('/:hash', (req, res) => {
                 console.log("Redirecting...")
                 let setValues = {
                     $set:{
-                        hits: existingUrl.hits < 6?  existingUrl.hits+1 : 0,
+                        hits: existingUrl.hits+1 
                     }
                 }
 
@@ -80,12 +82,11 @@ app.get('/:hash', (req, res) => {
                 return URL.update( whereClause, setValues ).exec()
                         .then(() => {
                             console.log(existingUrl)
-                            if (existingUrl.hits<6){
+                            if (existingUrl.hits <= existingUrl.maxHits){
                                 return res.redirect(existingUrl.url)
                             }
                             else{
-                                res.status(404).send( hash = shortid.generate()) 
-                                URL.update( whereClause, {$set: {hash:hash}}).exec()                             
+                                res.status(404)
                                 
                             }
                         })
