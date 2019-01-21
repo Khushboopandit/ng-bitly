@@ -28,6 +28,29 @@ describe("API Tests", function() {
             done()
         })
     });
+
+    it.only("should return a another shortened URL if maxHits exits", (done) => {
+      const request1 = { url: "https://web.flock.com/?" }
+      let hash
+      axios.post('http://localhost:7000/shorten', request1)
+      .then(response1 => {
+        expect(response1.status).to.equal(201)
+        hash = response1.data.hash
+        const request2 = { url: "https://web.flock.com/?" , maxHits: 3}
+        return axios.post('http://localhost:7000/shorten', request2)
+        
+        })
+        .then(response2=>{
+          expect(response2.data.hash).to.not.equal(hash)
+          const request3 = { url: "https://web.flock.com/?" }
+          return axios.post('http://localhost:7000/shorten', request3)
+     
+        })
+        .then(response3=>{
+          expect(response3.data.hash).to.equal(hash)
+          done()
+        })
+    });
   });
 
 

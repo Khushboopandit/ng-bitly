@@ -16,7 +16,7 @@ dbConnection.on('open', () => {
 const URL = mongoose.model("url", {
     hash: String,
     url: String,
-    maxHits: {type: Number,default: 6},
+    maxHits: {type: Number},
     hits: { type: Number, default: 0 }
 });
 
@@ -39,13 +39,16 @@ app.post('/shorten', (req, res) => {
     URL.findOne({url: req.body.url}).exec()
         .then(existingUrl => {
             // check if url has been already created
-            if (existingUrl) {
+            if(req.body.maxHits){
+                const hash = shortid.generate();
+                return URL.create({ hash: hash, url: req.body.url , maxHits: req.body.maxHits})
+            }
+            else if (existingUrl) {
                     return existingUrl;
             // create if no shorten url exist
             } else {
                     const hash = shortid.generate();
-
-                    return URL.create({ hash: hash, url: req.body.url , maxHits: req.body.maxHits});
+                    return URL.create({ hash: hash, url: req.body.url});
             }
         })
         .then(doc => {
@@ -83,12 +86,17 @@ app.get('/:hash', (req, res) => {
                         .then(() => {
                             console.log(existingUrl)
                             console.log(existingUrl.maxHits)
-                            if (existingUrl.hits < existingUrl.maxHits){
+                            if (existingUrl.maxHits){
+                                if (existingUrl.hits < existingUrl.maxHits){
+                                        return res.redirect(existingUrl.url)
+                                    }
+                                else{
+                                    res.status(404).send("not found")
+                                    
+                                    }
+                                }
+                            else if(existingUrl){
                                 return res.redirect(existingUrl.url)
-                            }
-                            else{
-                                res.status(404).send("not found")
-                                
                             }
                         })
             } else {
@@ -100,5 +108,4 @@ app.get('/:hash', (req, res) => {
 
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))
-
 
